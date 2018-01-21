@@ -1,0 +1,32 @@
+QPixmap ChooseImage(){
+  Mat image;
+  QImage img;
+  QPixmap fitpixmap;
+  QString filename=QFileDialog::getOpenFileName(this,"Open Image",".","*.bmp *.jpg *.jpeg *.png");
+  QTextCodec *code=QTextCodec::codecForName("gb18030");
+  std::string name = code->fromUnicode(filename).data();
+  image = imread(name);
+  if(!image.data){
+    QMessageBox megBox;
+    megBox.setText("image data is null,please try again!");
+    megBox.exec();
+  }
+  else{
+    if (image.channels()==3){
+      cvtColor(image,image,CV_BGR2RGB);
+      img = QImage((const uchar *)(image.data),
+            image.cols, image.rows,
+            image.cols*image.channels(),
+            QImage::Format_RGB888);
+    }else{
+      img = QImage((const uchar*)(image.data),
+            image.cols, image.rows,
+            image.cols*image.channels(),
+            QImage::Format_RGB888);
+    }
+    QPixmap pixmap = QPixmap::formImage(img);
+    fitpixmap = pixmap.scaled(img.width()/3,img.height()/3,Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    //将原图等比例缩小三倍
+    return fitpixmap;
+  }
+}
